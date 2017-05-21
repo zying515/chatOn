@@ -2,23 +2,25 @@
 var socket = io.connect();
 function wrapInfo(){   // 点击个人信息时方框外围
 	$(".myInfo").addClass("wrapIt");
-	var t = setTimeout(function(){ 
+	var t = setTimeout(function(){
 		$(".myInfo").removeClass("wrapIt");
 	},1500);
 	//clearTimeout(t);
 }
 function keySend(event){    // ctrl + enter  sendMessage
-	if(event.ctrlKey && event.keyCode == 13){ 
+	if(event.ctrlKey && event.keyCode == 13){
 		sendMyMessage();
 	}
 }
 function sendMyMessage(){     // 发送消息 -- 处理
 	var content = $("#msgIn").val();   //获取消息框数据
-	
-	if(content == ""){ 
+
+	if(content == ""){
 		return;
 	}
-	if(content.substring(0,1) === '@' && content.indexOf(':') != -1){   //private message  format:  @user:
+    content = replace_em(content);
+
+    if(content.substring(0,1) === '@' && content.indexOf(':') != -1){   //private message  format:  @user:
 		var index = content.indexOf(':');
 		if(content[index-1] != " "){
 		var touser = content.substring(1,index);  //userName
@@ -26,32 +28,43 @@ function sendMyMessage(){     // 发送消息 -- 处理
 		var fromuser = $("#nickname span").html();
 	//	alert(touser+"   "+content1);
 		socket.emit("say_private",fromuser,touser,content1);    //私聊
-		}else{ 
-			socket.emit("say",content);   // 正常群聊 给服务器提交数据 提供处理
+		}else{
+			socket.emit("say", content);   // 正常群聊 给服务器提交数据 提供处理
 		}
 	}else{
-	socket.emit("say",content);   // 正常群聊 给服务器提交数据 提供处理
+        socket.emit("say", content);
 	}
 	$("#msgIn").val("");              //消息框置空
 }
-function ensure(){ 
+function ensure(){
    $("#chat-modal").modal("hide");
 }
-
+var path ='images/arclist/';
 // quick-input
-$(function(){  
-	var T = setInterval(function(){ 
+$(function(){
+
+    $('.emotion').qqFace({
+
+        id : 'facebox',
+
+        assign:'msgIn',
+
+        path:path	//表情存放的路径
+
+    });
+
+	var T = setInterval(function(){
 		var date = new Date();
 	       var time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
 		$(".tip span").html(time);
 	},1000);
-	
-	
+
+
 	$(".quick-menu").on("click",function(event){   // 快捷信息拉取
 		/* Act on the event */
 		$("#msgIn").val($(event.target).text().substr(4));
 	});
-}); 
+});
 function toUser(user){    // 快捷-- 获取用户想对 user 私聊  @user: 格式置入表单
 //	alert(user.innerHTML+"a1a");   // .substring(0,user.innerHTML.length-1)
 	var touser = "@"+user.innerHTML +": ";
@@ -65,7 +78,8 @@ function showChatMsgs(){     // 获取聊天记录
 socket.on("getChatListDone",function(datas){   //从服务器获取聊天记录
 	$(".chat-list").html("");
 	$(".chat-list").append("<tr class='row'><th class='col-sm-1'> ID </th><th class='col-sm-4'> Time </th><th class='col-sm-8'> Content </th></tr>");
-	for(var i=0;i<datas.length;i++){ 
+	for(var i=0;i<datas.length;i++){
+
 		$(".chat-list").append("<tr class='row'><td class='col-sm-1'>"+(i+1)+"</td><td class='col-sm-3'>"+datas[i].time+"</td><td class='col-sm-8'>"+datas[i].data+"</td></tr>");
 	}
 });
@@ -81,7 +95,7 @@ function setMyInfo(){             //设置个人信息
 }
 socket.on("nameExists",function(uname){            // 昵称已经存在
 	$("#nickname-error").css("display","block");
-	var t = setTimeout(function(){ 
+	var t = setTimeout(function(){
 		$("#nickname-error").css("display","none");
 	},2000);
 });
@@ -89,12 +103,12 @@ socket.on("setInfoDone",function(oldName,newName,sex){    // 信息设置成功
 	$("#change-modal").modal("hide");
 	var msg_list = $(".msg-list");
 	if(oldName !== newName){
-		msg_list.append( 
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+
 		'system@:  changes name to 【'+newName+'】：success'+'</div></div>'
 	);
-	}else{ 
-		msg_list.append( 
+	}else{
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+
 		'system@:  update info：success'+'</div></div>'
 	);
@@ -106,7 +120,7 @@ socket.on("setInfoDone",function(oldName,newName,sex){    // 信息设置成功
 socket.on("userChangeInfo",function(oldName,newName,sex){
 	var msg_list = $(".msg-list");
 	if(oldName !== newName){
-		msg_list.append( 
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+
 		'system@:  【'+oldName+'】changes name to 【'+newName+'】</div></div>'
 	);
@@ -119,21 +133,21 @@ socket.on("connect",function(){   // 进入聊天室
 	console.log("send userName to server completed");
 });
 
-socket.on("userIn",function(data){ 
+socket.on("userIn",function(data){
 	var msg_list = $(".msg-list");
-		msg_list.append( 
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+data+'</div></div>'
 	);
 });
-socket.on("userOut",function(data){ 
+socket.on("userOut",function(data){
 	var msg_list = $(".msg-list");
-		msg_list.append( 
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+data+'</div></div>'
 	);
 });
-socket.on("system",function(data){ 
+socket.on("system",function(data){
 	var msg_list = $(".msg-list");
-		msg_list.append( 
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-welcome">'+data+'</div></div>'
 	);
 });
@@ -141,11 +155,11 @@ socket.on("system",function(data){
 socket.on("user_list",function(userList){    // 获取用户列表并展示
 	$(".user-list").html("");
 
-	for(var i=0;i<userList.length;i++){ 
+	for(var i=0;i<userList.length;i++){
 		var sex = userList[i].sex, imgSrc;
-		if(sex === 'girl'){ 
+		if(sex === 'girl'){
 			imgSrc = "../images/girl.png";
-		}else if(sex === 'boy'){ 
+		}else if(sex === 'boy'){
 			imgSrc = "../images/boy.png";
 		}
 		$(".user-list").append("<tr class='row'><td class='col-sm-1'><img style='width:10px; height:20px;' src="+imgSrc+"></td><td class='col-sm-11 user-name' title='点此用户 可与其私聊哦~' onclick='toUser(this)'>"+userList[i].name+"</td></tr>");
@@ -155,9 +169,11 @@ socket.on("user_list",function(userList){    // 获取用户列表并展示
 });
 
 socket.on("user_say",function(name,time,content){    // 获取用户的聊天信息并显示于面板
-	console.log("client:  "+name + "say :  "+content);
+    content = replace_em(content);
+
+    console.log("client:  "+name + "say :  "+content);
 	var msg_list = $(".msg-list");
-	msg_list.append( 
+	msg_list.append(
 		'<div class="msg-wrap"><div class="msg-info"><span class="msg-name" title="点此用户 可与其私聊哦~" onclick="toUser(this)">'+name+' </span>'+
 		'<span class="msg-time">'+time+' </span><span class="glyphicon glyphicon-bullhorn"></span></div>'+
 		'<div class="msg-content">'+content+'</div></div>'
@@ -166,17 +182,37 @@ socket.on("user_say",function(name,time,content){    // 获取用户的聊天信
 	msg_list.scrollTop(hei);
 });
 
-socket.on("sayToYou",function(fromuser,content){ 
-	var msg_list = $(".msg-list");
-		msg_list.append( 
+socket.on("sayToYou",function(fromuser,content){
+    content = replace_em(content);
+    var msg_list = $(".msg-list");
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+
 		'【'+fromuser+'】给你私信：'+content+'</div></div>'
 	);
 });
-socket.on("say_private_done",function(touser,content){ 
-	var msg_list = $(".msg-list");
-		msg_list.append( 
+socket.on("say_private_done",function(touser,content){
+    content = replace_em(content);
+
+    var msg_list = $(".msg-list");
+		msg_list.append(
 		'<div class="msg-wrap"><div class="msg-content msg-system">'+
 		'你已经给【'+touser+'】发送了私信：'+content+'</div></div>'
 	);
 })
+
+
+//查看结果
+
+function replace_em(str){
+
+    //str = str.replace(/\</g,'&lt;');
+
+   // str = str.replace(/\>/g,'&gt;');
+
+    //str = str.replace(/\n/g,'<br/>');
+
+    str = str.replace(/\[em_([0-9]*)\]/g,'<img src="'+path+'/$1.gif" border="0" />');
+
+    return str;
+
+}
