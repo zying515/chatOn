@@ -1,7 +1,7 @@
 var server = require('socket.io')();
 
-var escape = require('escape-html');
-var html = escape('foo & bar');
+//var escape = require('escape-html');
+//var html = escape('foo & bar');
 
 var clients = [];  // 存储所有客户端 socket 和 name
 function getTime(){   // 获取时间格式

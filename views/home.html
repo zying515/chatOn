@@ -7,8 +7,10 @@
 <title>小小小小在线聊天室(chat-room)</title>
 <link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="stylesheets/chat.css">
+<link rel="stylesheet" type="text/css" href="stylesheets/reset.css">
 
-<!--[if lt IE9]>
+
+	<!--[if lt IE9]>
 
 <![endif]-->
 
@@ -85,9 +87,11 @@
 
 				<!-- 信息输入框 -->
 				<div class="input-group input-group-lg">
+					<span class="emotion">表情</span>
 					<span class="input-group-btn dropup">
-						<button type="button"class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="quick">快捷信息
-						<span class="caret"></span>
+						<button type="button"class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="quick">
+							<span>快捷信息</span>
+						    <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu quick-menu">
 							<li> 1. Hello </li>
@@ -175,5 +179,8 @@
 	<script type="text/javascript" src="javascripts/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="javascripts/chat_client.js"></script>
+	<script type="text/javascript" src="javascripts/jquery.qqFace.js"></script>
+    <script type="text/javascript" src="javascripts/jquery.browser.js"></script>
 </body>
 </html>
+
